@@ -21,6 +21,10 @@
         </div>
 
         <div class="controls">
+          <div class="field"><label>Alamat Toko / Jalan</label><input id="address" value="Jl. Contoh No.1" /></div>
+        </div>
+
+        <div class="controls">
           <div class="field"><label>Nama Pembeli</label><input id="customer" value="Budi" /></div>
           <div class="field small"><label>Metode Bayar</label>
             <select id="method">
@@ -37,6 +41,11 @@
 Nasi Putih;1;5000
 Es Teh;2;7000</textarea>
 
+        <div class="controls">
+          <div class="field"><label>Pesan Terima Kasih</label><input id="thankYou" value="Terima kasih telah berbelanja!" /></div>
+          <div class="field"><label>Powered By</label><input id="poweredBy" value="Powered by Struk Generator" /></div>
+        </div>
+
         <div class="actions">
           <button class="btn primary" id="renderBtn">Render Struk</button>
           <button class="btn" id="pdfBtn">Download PDF</button>
@@ -48,7 +57,10 @@ Es Teh;2;7000</textarea>
 
       <div class="preview">
         <div id="receipt">
-          <header><h2 id="rMerchant">Toko Contoh</h2><div class="muted">Alamat: Jl. Contoh No.1</div></header>
+          <header>
+            <h2 id="rMerchant">Toko Contoh</h2>
+            <div class="muted" id="rAddress">Jl. Contoh No.1</div>
+          </header>
           <div class="small">
             <div>No. Struk: <span id="rTxn"></span></div>
             <div>Tanggal: <span id="rDate"></span></div>
@@ -63,8 +75,9 @@ Es Teh;2;7000</textarea>
             <div class="total highlight"><span>Total Bayar</span><span id="rTotal">Rp 0</span></div>
           </div>
           <div class="line"></div>
-          <div class="center small">Terima kasih telah berbelanja!
-            <div class="muted">Powered by Struk Generator</div>
+          <div class="center small" id="thankWrap">
+            <span id="rThankYou">Terima kasih telah berbelanja!</span>
+            <div class="muted" id="rPoweredBy">Powered by Struk Generator</div>
           </div>
         </div>
       </div>
@@ -75,4 +88,5 @@ Es Teh;2;7000</textarea>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
   <script src="script.js"></script>
 </body>
-</html>
+  </html>
+        
