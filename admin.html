@@ -2,141 +2,142 @@
 <html lang="id">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Halaman Admin - Atur Menu</title>
-  <link rel="stylesheet" href="style.css">
+  <title>Admin - Atur Menu</title>
   <style>
     body {
-      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      font-family: Arial, sans-serif;
+      background: #f4f6f9;
       padding: 20px;
-      background: linear-gradient(135deg, #f6d365 0%, #fda085 100%);
-      min-height: 100vh;
-      display: flex;
-      justify-content: center;
-      align-items: flex-start;
     }
     .container {
-      background: white;
+      max-width: 600px;
+      margin: auto;
+      background: #fff;
       padding: 20px;
-      border-radius: 15px;
-      box-shadow: 0 4px 15px rgba(0,0,0,0.2);
-      max-width: 500px;
-      width: 100%;
+      border-radius: 12px;
+      box-shadow: 0 4px 10px rgba(0,0,0,0.1);
     }
-    h2 { text-align: center; }
-    label { display: block; margin-top: 10px; font-weight: bold; }
-    input, select {
-      margin-top: 5px;
+    input, select, button {
+      margin: 8px 0;
       padding: 10px;
       width: 100%;
       border-radius: 8px;
       border: 1px solid #ccc;
-      outline: none;
-      transition: 0.3s;
-    }
-    input:focus, select:focus {
-      border-color: #ff7e5f;
-      box-shadow: 0 0 5px #ff7e5f;
+      font-size: 14px;
     }
     button {
-      background: linear-gradient(135deg, #ff7e5f, #feb47b);
-      border: none;
-      padding: 10px 15px;
+      background: #007bff;
       color: white;
-      border-radius: 10px;
       cursor: pointer;
-      margin-top: 15px;
-      width: 100%;
-      font-size: 15px;
+      border: none;
       transition: 0.3s;
     }
     button:hover {
-      transform: scale(1.05);
-      box-shadow: 0 3px 10px rgba(0,0,0,0.2);
+      background: #0056b3;
     }
-    .menu-list { margin-top: 20px; }
-    .menu-item {
-      border: 1px solid #ddd;
+    h2 {
+      text-align: center;
+    }
+    .menu-list {
+      margin-top: 20px;
+    }
+    .diskon-box {
+      margin-top: 20px;
       padding: 10px;
-      margin-bottom: 10px;
+      background: #eef5ff;
       border-radius: 8px;
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      background: #fafafa;
     }
-    .goto-index { margin-top: 20px; }
   </style>
 </head>
 <body>
   <div class="container">
-    <h2>Halaman Admin - Tambah Menu</h2>
-    <div class="form-container">
-      <label for="kategori">Kategori</label>
-      <select id="kategori">
-        <option value="Makanan">Makanan</option>
-        <option value="Minuman">Minuman</option>
-        <option value="Lainnya">Lainnya</option>
-      </select>
+    <h2>⚙️ Halaman Admin</h2>
 
-      <label for="nama">Nama Menu</label>
-      <input type="text" id="nama" placeholder="Contoh: Nasi Goreng">
+    <h3>Tambah Menu</h3>
+    <select id="kategori">
+      <option value="Makanan">Makanan</option>
+      <option value="Minuman">Minuman</option>
+      <option value="Lainnya">Lainnya</option>
+    </select>
+    <input type="text" id="nama" placeholder="Nama Menu">
+    <input type="number" id="harga" placeholder="Harga">
+    <button onclick="tambahMenu()">Tambah Menu</button>
 
-      <label for="harga">Harga</label>
-      <input type="number" id="harga" placeholder="Contoh: 15000">
-
-      <button onclick="tambahMenu()">➕ Tambah Menu</button>
+    <div class="menu-list">
+      <h3>📋 Daftar Menu</h3>
+      <div id="daftarMenu"></div>
     </div>
 
-    <h3>Daftar Menu</h3>
-    <div id="menuList" class="menu-list"></div>
-
-    <!-- Tombol menuju halaman index -->
-    <div class="goto-index">
-      <a href="index.html">
-        <button>➡️ Lanjut ke Kasir</button>
-      </a>
+    <div class="diskon-box">
+      <h3>🎁 Atur Diskon</h3>
+      <label>Jenis Diskon:</label>
+      <select id="diskonTipe">
+        <option value="persen">Persentase (%)</option>
+        <option value="potongan">Potongan (Rp)</option>
+      </select>
+      <input type="number" id="diskonNilai" placeholder="Masukkan nilai diskon">
+      <button onclick="simpanDiskon()">Simpan Diskon</button>
+      <p id="infoDiskon"></p>
     </div>
   </div>
 
   <script>
-    function loadMenu() {
-      const menu = JSON.parse(localStorage.getItem('menuData')) || [];
-      const menuList = document.getElementById('menuList');
-      menuList.innerHTML = '';
-      menu.forEach((item, index) => {
-        menuList.innerHTML += `
-          <div class="menu-item">
-            <span><b>${item.kategori}</b> - ${item.nama} : Rp${item.harga}</span>
-            <button onclick="hapusMenu(${index})" style="width:auto; background:#ff4b5c;">🗑️ Hapus</button>
-          </div>`;
+    let menuData = JSON.parse(localStorage.getItem('menuData')) || [];
+    let diskon = JSON.parse(localStorage.getItem('diskonData')) || { tipe: "persen", nilai: 0 };
+
+    function tampilkanMenu() {
+      const daftar = document.getElementById('daftarMenu');
+      daftar.innerHTML = "";
+      menuData.forEach((item, idx) => {
+        daftar.innerHTML += `<p>${item.kategori} - ${item.nama} : Rp${item.harga.toLocaleString("id-ID")}
+        <button onclick="hapusMenu(${idx})" style="background:#ff4b5c;color:white;border:none;padding:4px 10px;border-radius:6px;margin-left:10px;">Hapus</button></p>`;
       });
     }
 
     function tambahMenu() {
       const kategori = document.getElementById('kategori').value;
       const nama = document.getElementById('nama').value;
-      const harga = document.getElementById('harga').value;
+      const harga = parseInt(document.getElementById('harga').value);
+
       if (!nama || !harga) {
-        alert("Isi semua field!");
+        alert("Isi semua data!");
         return;
       }
-      const menu = JSON.parse(localStorage.getItem('menuData')) || [];
-      menu.push({ kategori, nama, harga });
-      localStorage.setItem('menuData', JSON.stringify(menu));
-      loadMenu();
-      document.getElementById('nama').value = '';
-      document.getElementById('harga').value = '';
+
+      menuData.push({ kategori, nama, harga });
+      localStorage.setItem('menuData', JSON.stringify(menuData));
+      tampilkanMenu();
     }
 
     function hapusMenu(index) {
-      const menu = JSON.parse(localStorage.getItem('menuData')) || [];
-      menu.splice(index, 1);
-      localStorage.setItem('menuData', JSON.stringify(menu));
-      loadMenu();
+      menuData.splice(index, 1);
+      localStorage.setItem('menuData', JSON.stringify(menuData));
+      tampilkanMenu();
     }
 
-    window.onload = loadMenu;
+    function simpanDiskon() {
+      const tipe = document.getElementById('diskonTipe').value;
+      const nilai = parseInt(document.getElementById('diskonNilai').value) || 0;
+      diskon = { tipe, nilai };
+      localStorage.setItem('diskonData', JSON.stringify(diskon));
+      tampilkanDiskon();
+    }
+
+    function tampilkanDiskon() {
+      const info = document.getElementById('infoDiskon');
+      if (diskon.nilai > 0) {
+        if (diskon.tipe === "persen") {
+          info.innerText = `Diskon aktif: ${diskon.nilai}%`;
+        } else {
+          info.innerText = `Diskon aktif: Rp${diskon.nilai.toLocaleString("id-ID")}`;
+        }
+      } else {
+        info.innerText = "Tidak ada diskon";
+      }
+    }
+
+    tampilkanMenu();
+    tampilkanDiskon();
   </script>
 </body>
 </html>
