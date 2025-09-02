@@ -2,230 +2,205 @@
 <html lang="id">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Struk Pembayaran</title>
-  <link rel="stylesheet" href="style.css">
+  <title>Kasir - Cetak Struk</title>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
   <style>
     body {
-      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      font-family: Arial, sans-serif;
+      background: #f4f6f9;
       padding: 20px;
-      background: linear-gradient(135deg, #74ebd5 0%, #ACB6E5 100%);
-      min-height: 100vh;
-      display: flex;
-      justify-content: center;
-      align-items: flex-start;
     }
     .container {
-      background: white;
+      max-width: 800px;
+      margin: auto;
+      background: #fff;
       padding: 20px;
-      border-radius: 15px;
-      box-shadow: 0 4px 15px rgba(0,0,0,0.2);
-      max-width: 400px;
-      width: 100%;
+      border-radius: 12px;
+      box-shadow: 0 4px 10px rgba(0,0,0,0.1);
     }
     h2 {
       text-align: center;
-      margin-bottom: 15px;
     }
-    form label {
-      margin-top: 10px;
-      display: block;
-      font-weight: bold;
-    }
-    select, input {
-      margin-top: 5px;
+    select, input, button {
+      margin: 8px 0;
       padding: 10px;
       width: 100%;
       border-radius: 8px;
       border: 1px solid #ccc;
-      outline: none;
-      transition: 0.3s;
-    }
-    input:focus, select:focus {
-      border-color: #6c63ff;
-      box-shadow: 0 0 5px #6c63ff;
+      font-size: 14px;
     }
     button {
-      background: linear-gradient(135deg, #6c63ff, #48c6ef);
-      border: none;
-      padding: 10px 15px;
-      color: white;
-      border-radius: 10px;
       cursor: pointer;
-      margin-top: 15px;
-      width: 100%;
-      font-size: 15px;
       transition: 0.3s;
+      border: none;
     }
-    button:hover {
-      transform: scale(1.05);
-      box-shadow: 0 3px 10px rgba(0,0,0,0.2);
-    }
-    #strukOutput {
-      background: #fafafa;
-      border: 1px dashed #000;
+    button:hover { opacity: 0.9; }
+    .btn-primary { background: #007bff; color: white; }
+    .btn-success { background: #28a745; color: white; }
+    .btn-danger { background: #dc3545; color: white; }
+    .btn-warning { background: #ffc107; color: black; }
+    .struk {
+      margin-top: 20px;
       padding: 20px;
-      margin: 20px auto;
-      font-family: monospace;
-      line-height: 1.4em;
-      border-radius: 10px;
+      background: #fff;
+      border: 1px dashed #000;
+      border-radius: 6px;
+      font-size: 14px;
+      line-height: 1.6;
     }
-    #strukOutput h3 { text-align: center; border-bottom: 1px dashed #000; padding-bottom: 5px; }
-    .btn-group {
-      margin-top: 15px;
-      display: grid;
-      gap: 10px;
+    .actions button {
+      margin: 5px 0;
+      width: 48%;
     }
   </style>
 </head>
 <body>
   <div class="container">
-    <h2>Struk Pembayaran</h2>
-    <form id="paymentForm">
-      <label for="menu">Pilih Menu</label>
-      <select id="menu"></select>
+    <h2>🛒 Kasir - Cetak Struk</h2>
 
-      <label for="jumlah">Jumlah</label>
-      <input type="number" id="jumlah" min="1" value="1">
+    <h3>Pilih Menu</h3>
+    <select id="pilihMenu"></select>
+    <input type="number" id="jumlah" placeholder="Jumlah" min="1" value="1">
+    <button class="btn-success" onclick="tambahPesanan()">Tambah Pesanan</button>
 
-      <button type="button" onclick="tambahPesanan()">➕ Tambah ke Daftar</button>
-      <button type="submit">🧾 Buat Struk</button>
-    </form>
+    <div class="struk" id="strukArea">
+      <h3 style="text-align:center;">🧾 STRUK PEMBAYARAN</h3>
+      <div id="isiStruk"></div>
+      <hr>
+      <p id="subtotal"></p>
+      <p id="diskonInfo"></p>
+      <h4 id="total"></h4>
+    </div>
 
-    <div id="daftarPesanan" style="margin-top:15px;"></div>
-
-    <div id="strukOutput" style="display:none;"></div>
-
-    <div class="btn-group" id="aksiStruk" style="display:none;">
-      <button onclick="printStruk()">🖨️ Print</button>
-      <button onclick="downloadPNG()">📷 Download PNG</button>
-      <button onclick="downloadPDF()">📄 Download PDF</button>
-      <button onclick="shareStruk()">📤 Bagikan</button>
+    <div class="actions">
+      <button class="btn-primary" onclick="cetakStruk()">🖨️ Cetak</button>
+      <button class="btn-warning" onclick="downloadPNG()">📷 PNG</button>
+      <button class="btn-danger" onclick="downloadPDF()">📄 PDF</button>
+      <button class="btn-success" onclick="bagikanStruk()">📤 Bagikan</button>
     </div>
   </div>
 
   <script>
     let pesanan = [];
+    let menuData = JSON.parse(localStorage.getItem('menuData')) || [];
+    let diskon = JSON.parse(localStorage.getItem('diskonData')) || { tipe: "persen", nilai: 0 };
 
-    function loadMenuOptions() {
-      const menu = JSON.parse(localStorage.getItem('menuData')) || [];
-      const menuSelect = document.getElementById('menu');
-      menuSelect.innerHTML = '';
-      menu.forEach((item, index) => {
-        menuSelect.innerHTML += `<option value="${index}">${item.kategori} - ${item.nama} : Rp${item.harga}</option>`;
+    // format rupiah dengan titik
+    function formatRupiah(angka) {
+      return "Rp " + angka.toLocaleString("id-ID");
+    }
+
+    // tampilkan menu di select
+    function tampilkanMenu() {
+      const select = document.getElementById("pilihMenu");
+      select.innerHTML = "";
+      menuData.forEach((item, i) => {
+        let option = document.createElement("option");
+        option.value = i;
+        option.textContent = `${item.kategori} - ${item.nama} (${formatRupiah(item.harga)})`;
+        select.appendChild(option);
       });
     }
 
     function tambahPesanan() {
-      const menu = JSON.parse(localStorage.getItem('menuData')) || [];
-      const selectedIndex = document.getElementById('menu').value;
-      const jumlah = parseInt(document.getElementById('jumlah').value);
-      const selectedItem = menu[selectedIndex];
-      if (!selectedItem) return alert("Menu tidak tersedia");
+      const idx = document.getElementById("pilihMenu").value;
+      const jumlah = parseInt(document.getElementById("jumlah").value);
 
-      pesanan.push({ ...selectedItem, jumlah });
-      tampilkanPesanan();
-    }
-
-    function tampilkanPesanan() {
-      const daftarPesanan = document.getElementById('daftarPesanan');
-      daftarPesanan.innerHTML = "<h4>🛒 Daftar Pesanan:</h4>";
-      pesanan.forEach((item, idx) => {
-        daftarPesanan.innerHTML += `
-          <p>${item.kategori} - ${item.nama} x${item.jumlah} @Rp${item.harga} 
-          = Rp${item.harga * item.jumlah} 
-          <button onclick="hapusPesanan(${idx})" style="margin-left:10px;background:#ff4b5c;color:white;border:none;padding:2px 6px;border-radius:5px;">Hapus</button></p>`;
-      });
-    }
-
-    function hapusPesanan(index) {
-      pesanan.splice(index, 1);
-      tampilkanPesanan();
-    }
-
-    document.getElementById('paymentForm').addEventListener('submit', function(e) {
-      e.preventDefault();
-      if (pesanan.length === 0) {
-        alert("Tambahkan pesanan dulu!");
+      if (idx === "" || jumlah < 1) {
+        alert("Pilih menu dan masukkan jumlah!");
         return;
       }
 
-      let total = 0;
-      let detailPesanan = "";
-      pesanan.forEach(item => {
-        const subtotal = item.harga * item.jumlah;
-        total += subtotal;
-        detailPesanan += `${item.nama} x${item.jumlah} = Rp${subtotal}\n`;
+      const item = menuData[idx];
+      pesanan.push({ ...item, jumlah });
+      tampilkanStruk();
+    }
+
+    function tampilkanStruk() {
+      let isi = document.getElementById("isiStruk");
+      isi.innerHTML = "";
+      let subtotal = 0;
+
+      let kategoriCount = { Makanan: 0, Minuman: 0, Lainnya: 0 };
+
+      pesanan.forEach(p => {
+        let totalItem = p.harga * p.jumlah;
+        subtotal += totalItem;
+        kategoriCount[p.kategori] += p.jumlah;
+        isi.innerHTML += `<p>${p.nama} (${p.kategori}) x${p.jumlah} - ${formatRupiah(totalItem)}</p>`;
       });
 
-      const tanggal = new Date().toLocaleString("id-ID");
+      // tampilkan ringkasan jumlah per kategori
+      isi.innerHTML += `<hr>
+        <p><b>Ringkasan:</b></p>
+        <p>Makanan: ${kategoriCount.Makanan}</p>
+        <p>Minuman: ${kategoriCount.Minuman}</p>
+        <p>Lainnya: ${kategoriCount.Lainnya}</p>`;
 
-      document.getElementById('strukOutput').style.display = "block";
-      document.getElementById('aksiStruk').style.display = "grid";
-      document.getElementById('strukOutput').innerHTML = `
-        <h3>WARUNG MAKAN</h3>
-        <p>Tanggal: ${tanggal}</p>
-        <p>------------------------------</p>
-        <pre>${detailPesanan}</pre>
-        <p>------------------------------</p>
-        <p><b>Total : Rp${total}</b></p>
-        <p>------------------------------</p>
-        <p>Terima Kasih 🙏</p>
-      `;
-    });
+      document.getElementById("subtotal").innerText = "Subtotal: " + formatRupiah(subtotal);
 
-    function printStruk() {
-      const printContent = document.getElementById('strukOutput').innerHTML;
-      const w = window.open('', '', 'width=400,height=600');
-      w.document.write('<pre>' + printContent + '</pre>');
-      w.document.close();
-      w.print();
+      // hitung diskon
+      let potongan = 0;
+      if (diskon.nilai > 0) {
+        if (diskon.tipe === "persen") {
+          potongan = (subtotal * diskon.nilai) / 100;
+          document.getElementById("diskonInfo").innerText = `Diskon ${diskon.nilai}% : -${formatRupiah(potongan)}`;
+        } else {
+          potongan = diskon.nilai;
+          document.getElementById("diskonInfo").innerText = `Diskon Potongan: -${formatRupiah(potongan)}`;
+        }
+      } else {
+        document.getElementById("diskonInfo").innerText = "";
+      }
+
+      let total = subtotal - potongan;
+      if (total < 0) total = 0;
+      document.getElementById("total").innerText = "Total: " + formatRupiah(total);
+    }
+
+    function cetakStruk() {
+      window.print();
     }
 
     function downloadPNG() {
-      const struk = document.getElementById('strukOutput');
-      html2canvas(struk).then(canvas => {
+      html2canvas(document.getElementById("strukArea")).then(canvas => {
         const link = document.createElement("a");
         link.download = "struk.png";
-        link.href = canvas.toDataURL("image/png");
+        link.href = canvas.toDataURL();
         link.click();
       });
     }
 
     async function downloadPDF() {
       const { jsPDF } = window.jspdf;
-      const pdf = new jsPDF();
-      const struk = document.getElementById('strukOutput');
-      await html2canvas(struk).then(canvas => {
-        const imgData = canvas.toDataURL("image/png");
-        const imgProps= pdf.getImageProperties(imgData);
-        const pdfWidth = pdf.internal.pageSize.getWidth();
-        const pdfHeight = (imgProps.height * pdfWidth) / imgProps.width;
-        pdf.addImage(imgData, 'PNG', 0, 0, pdfWidth, pdfHeight);
-        pdf.save("struk.pdf");
-      });
+      const doc = new jsPDF();
+      const canvas = await html2canvas(document.getElementById("strukArea"));
+      const imgData = canvas.toDataURL("image/png");
+      const imgProps = doc.getImageProperties(imgData);
+      const pdfWidth = doc.internal.pageSize.getWidth();
+      const pdfHeight = (imgProps.height * pdfWidth) / imgProps.width;
+      doc.addImage(imgData, "PNG", 0, 0, pdfWidth, pdfHeight);
+      doc.save("struk.pdf");
     }
 
-    async function shareStruk() {
-      const struk = document.getElementById('strukOutput');
-      const canvas = await html2canvas(struk);
-      canvas.toBlob(blob => {
+    async function bagikanStruk() {
+      const canvas = await html2canvas(document.getElementById("strukArea"));
+      canvas.toBlob(async (blob) => {
         const file = new File([blob], "struk.png", { type: "image/png" });
         if (navigator.share) {
-          navigator.share({
+          await navigator.share({
             title: "Struk Pembayaran",
-            text: "Berikut struk pembelian Anda",
+            text: "Berikut struk pembayaran Anda",
             files: [file]
-          }).catch(err => console.log("Gagal berbagi:", err));
+          });
         } else {
-          alert("Fitur berbagi tidak didukung di perangkat ini");
+          alert("Fitur share tidak tersedia di perangkat ini");
         }
       });
     }
 
-    window.onload = loadMenuOptions;
+    tampilkanMenu();
   </script>
 </body>
 </html>
