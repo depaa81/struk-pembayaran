@@ -13,9 +13,12 @@ function parseItems(text){
 
 function render(){
   $("rMerchant").textContent = $("merchantName").value;
+  $("rAddress").textContent = $("address").value;
   $("rTxn").textContent = $("txnId").value;
   $("rDate").textContent = $("date").value;
   $("rCustomer").textContent = $("customer").value;
+  $("rThankYou").textContent = $("thankYou").value;
+  $("rPoweredBy").textContent = $("poweredBy").value;
 
   const items = parseItems($("itemsInput").value);
   const container = $("rItems");
@@ -70,6 +73,7 @@ $("renderBtn").addEventListener("click", ()=>{
   setTimeout(()=>el.style.transform="scale(1)",180);
 });
 
+// Download PNG, PDF, Share, Print
 async function downloadPNG(){
   const el = $("receipt");
   const canvas = await html2canvas(el,{scale:2, backgroundColor:null});
