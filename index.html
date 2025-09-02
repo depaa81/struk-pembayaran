@@ -45,11 +45,11 @@
           </div>
           <div style="width:160px">
             <label>No. Struk</label>
-            <input id="txnId" value="TRX-20250902-001" />
+            <input id="txnId" readonly />
           </div>
           <div style="width:160px">
             <label>Tanggal</label>
-            <input id="date" value="2025-09-02 10:00" />
+            <input id="date" />
           </div>
         </div>
 
@@ -95,15 +95,13 @@ Es Teh;2;7000</textarea>
               </div>
             </header>
             <div class="small">
-              <div>No. Struk: <span id="rTxn">TRX-001</span></div>
-              <div>Tanggal: <span id="rDate">2025-09-02 10:00</span></div>
+              <div>No. Struk: <span id="rTxn"></span></div>
+              <div>Tanggal: <span id="rDate"></span></div>
               <div>Pelanggan: <span id="rCustomer">Budi</span></div>
             </div>
             <div class="line"></div>
 
-            <div class="items" id="rItems">
-              <!-- item rows -->
-            </div>
+            <div class="items" id="rItems"></div>
             <div class="line"></div>
             <div>
               <div class="total"><div>Subtotal</div><div id="rSubtotal">Rp 0</div></div>
@@ -143,7 +141,6 @@ Es Teh;2;7000</textarea>
       const lines = text.split('\n').map(l=>l.trim()).filter(Boolean);
       const items = [];
       for(const ln of lines){
-        // format: name;qty;price
         const parts = ln.split(';').map(p=>p.trim());
         const name = parts[0]||"Item";
         const qty = Number(parts[1]||1);
@@ -178,7 +175,6 @@ Es Teh;2;7000</textarea>
 
     document.getElementById('renderBtn').addEventListener('click', ()=>{
       render();
-      // small flash animation
       const el = document.getElementById('receipt');
       el.style.transform = 'scale(.995)';
       setTimeout(()=>el.style.transform='scale(1)',120);
@@ -198,7 +194,6 @@ Es Teh;2;7000</textarea>
       const canvas = await html2canvas(el, {scale:2});
       const imgData = canvas.toDataURL('image/png');
       const { jsPDF } = window.jspdf;
-      // create a pdf sized to receipt width
       const pdf = new jsPDF({unit:'px', format:[canvas.width, canvas.height]});
       pdf.addImage(imgData, 'PNG', 0, 0, canvas.width, canvas.height);
       pdf.save((document.getElementById('txnId').value || 'struk') + '.pdf');
@@ -230,8 +225,25 @@ Es Teh;2;7000</textarea>
     $('shareBtn').addEventListener('click', async ()=>{ await shareFile(); });
     $('printBtn').addEventListener('click', ()=>{ window.print(); });
 
-    // initial render on load
-    render();
+    // --- AUTO GENERATE TRANSACTION ID ---
+    function generateTxnId(){
+      const now = new Date();
+      const y = now.getFullYear();
+      const m = String(now.getMonth()+1).padStart(2,"0");
+      const d = String(now.getDate()).padStart(2,"0");
+      const today = `${y}${m}${d}`;
+      const key = "txnCounter_" + today;
+      let counter = Number(localStorage.getItem(key) || 0) + 1;
+      localStorage.setItem(key, counter);
+      return `TRX-${today}-${String(counter).padStart(3,"0")}`;
+    }
+
+    window.addEventListener("DOMContentLoaded", ()=>{
+      $("txnId").value = generateTxnId();
+      $("date").value = new Date().toISOString().slice(0,16).replace("T"," ");
+      render();
+    });
   </script>
 </body>
 </html>
+            
