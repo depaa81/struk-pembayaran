@@ -110,3 +110,4 @@ $("pngBtn").addEventListener("click", downloadPNG);
 $("pdfBtn").addEventListener("click", downloadPDF);
 $("shareBtn").addEventListener("click", shareFile);
 $("printBtn").addEventListener("click", ()=>window.print());
+    
