@@ -34,7 +34,7 @@
       display: block;
       font-weight: bold;
     }
-    input, select {
+    select, input {
       margin-top: 5px;
       padding: 10px;
       width: 100%;
@@ -78,9 +78,6 @@
       display: grid;
       gap: 10px;
     }
-    .btn-group button {
-      width: 100%;
-    }
   </style>
 </head>
 <body>
@@ -93,8 +90,11 @@
       <label for="jumlah">Jumlah</label>
       <input type="number" id="jumlah" min="1" value="1">
 
+      <button type="button" onclick="tambahPesanan()">➕ Tambah ke Daftar</button>
       <button type="submit">🧾 Buat Struk</button>
     </form>
+
+    <div id="daftarPesanan" style="margin-top:15px;"></div>
 
     <div id="strukOutput" style="display:none;"></div>
 
@@ -107,6 +107,8 @@
   </div>
 
   <script>
+    let pesanan = [];
+
     function loadMenuOptions() {
       const menu = JSON.parse(localStorage.getItem('menuData')) || [];
       const menuSelect = document.getElementById('menu');
@@ -116,19 +118,48 @@
       });
     }
 
-    document.getElementById('paymentForm').addEventListener('submit', function(e) {
-      e.preventDefault();
+    function tambahPesanan() {
       const menu = JSON.parse(localStorage.getItem('menuData')) || [];
       const selectedIndex = document.getElementById('menu').value;
       const jumlah = parseInt(document.getElementById('jumlah').value);
       const selectedItem = menu[selectedIndex];
+      if (!selectedItem) return alert("Menu tidak tersedia");
 
-      if (!selectedItem) {
-        alert("Menu tidak tersedia");
+      pesanan.push({ ...selectedItem, jumlah });
+      tampilkanPesanan();
+    }
+
+    function tampilkanPesanan() {
+      const daftarPesanan = document.getElementById('daftarPesanan');
+      daftarPesanan.innerHTML = "<h4>🛒 Daftar Pesanan:</h4>";
+      pesanan.forEach((item, idx) => {
+        daftarPesanan.innerHTML += `
+          <p>${item.kategori} - ${item.nama} x${item.jumlah} @Rp${item.harga} 
+          = Rp${item.harga * item.jumlah} 
+          <button onclick="hapusPesanan(${idx})" style="margin-left:10px;background:#ff4b5c;color:white;border:none;padding:2px 6px;border-radius:5px;">Hapus</button></p>`;
+      });
+    }
+
+    function hapusPesanan(index) {
+      pesanan.splice(index, 1);
+      tampilkanPesanan();
+    }
+
+    document.getElementById('paymentForm').addEventListener('submit', function(e) {
+      e.preventDefault();
+      if (pesanan.length === 0) {
+        alert("Tambahkan pesanan dulu!");
         return;
       }
 
-      const total = selectedItem.harga * jumlah;
+      let total = 0;
+      let detailPesanan = "";
+      pesanan.forEach(item => {
+        const subtotal = item.harga * item.jumlah;
+        total += subtotal;
+        detailPesanan += `${item.nama} x${item.jumlah} = Rp${subtotal}\n`;
+      });
+
       const tanggal = new Date().toLocaleString("id-ID");
 
       document.getElementById('strukOutput').style.display = "block";
@@ -137,9 +168,7 @@
         <h3>WARUNG MAKAN</h3>
         <p>Tanggal: ${tanggal}</p>
         <p>------------------------------</p>
-        <p>Menu : ${selectedItem.nama}</p>
-        <p>Harga : Rp${selectedItem.harga}</p>
-        <p>Jumlah: ${jumlah}</p>
+        <pre>${detailPesanan}</pre>
         <p>------------------------------</p>
         <p><b>Total : Rp${total}</b></p>
         <p>------------------------------</p>
