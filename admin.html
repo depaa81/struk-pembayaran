@@ -6,43 +6,97 @@
   <title>Halaman Admin - Atur Menu</title>
   <link rel="stylesheet" href="style.css">
   <style>
-    body { font-family: Arial, sans-serif; padding: 20px; }
-    h2 { margin-bottom: 10px; }
-    .form-container { margin-bottom: 20px; }
-    label { display: block; margin-top: 10px; }
-    input, select, button { margin-top: 5px; padding: 8px; width: 100%; max-width: 400px; }
+    body {
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      padding: 20px;
+      background: linear-gradient(135deg, #f6d365 0%, #fda085 100%);
+      min-height: 100vh;
+      display: flex;
+      justify-content: center;
+      align-items: flex-start;
+    }
+    .container {
+      background: white;
+      padding: 20px;
+      border-radius: 15px;
+      box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+      max-width: 500px;
+      width: 100%;
+    }
+    h2 { text-align: center; }
+    label { display: block; margin-top: 10px; font-weight: bold; }
+    input, select {
+      margin-top: 5px;
+      padding: 10px;
+      width: 100%;
+      border-radius: 8px;
+      border: 1px solid #ccc;
+      outline: none;
+      transition: 0.3s;
+    }
+    input:focus, select:focus {
+      border-color: #ff7e5f;
+      box-shadow: 0 0 5px #ff7e5f;
+    }
+    button {
+      background: linear-gradient(135deg, #ff7e5f, #feb47b);
+      border: none;
+      padding: 10px 15px;
+      color: white;
+      border-radius: 10px;
+      cursor: pointer;
+      margin-top: 15px;
+      width: 100%;
+      font-size: 15px;
+      transition: 0.3s;
+    }
+    button:hover {
+      transform: scale(1.05);
+      box-shadow: 0 3px 10px rgba(0,0,0,0.2);
+    }
     .menu-list { margin-top: 20px; }
-    .menu-item { border: 1px solid #ccc; padding: 10px; margin-bottom: 10px; border-radius: 5px; }
+    .menu-item {
+      border: 1px solid #ddd;
+      padding: 10px;
+      margin-bottom: 10px;
+      border-radius: 8px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      background: #fafafa;
+    }
     .goto-index { margin-top: 20px; }
   </style>
 </head>
 <body>
-  <h2>Halaman Admin - Tambah Menu</h2>
-  <div class="form-container">
-    <label for="kategori">Kategori</label>
-    <select id="kategori">
-      <option value="Makanan">Makanan</option>
-      <option value="Minuman">Minuman</option>
-      <option value="Lainnya">Lainnya</option>
-    </select>
+  <div class="container">
+    <h2>Halaman Admin - Tambah Menu</h2>
+    <div class="form-container">
+      <label for="kategori">Kategori</label>
+      <select id="kategori">
+        <option value="Makanan">Makanan</option>
+        <option value="Minuman">Minuman</option>
+        <option value="Lainnya">Lainnya</option>
+      </select>
 
-    <label for="nama">Nama Menu</label>
-    <input type="text" id="nama" placeholder="Contoh: Nasi Goreng">
+      <label for="nama">Nama Menu</label>
+      <input type="text" id="nama" placeholder="Contoh: Nasi Goreng">
 
-    <label for="harga">Harga</label>
-    <input type="number" id="harga" placeholder="Contoh: 15000">
+      <label for="harga">Harga</label>
+      <input type="number" id="harga" placeholder="Contoh: 15000">
 
-    <button onclick="tambahMenu()">Tambah Menu</button>
-  </div>
+      <button onclick="tambahMenu()">➕ Tambah Menu</button>
+    </div>
 
-  <h3>Daftar Menu</h3>
-  <div id="menuList" class="menu-list"></div>
+    <h3>Daftar Menu</h3>
+    <div id="menuList" class="menu-list"></div>
 
-  <!-- Tombol menuju halaman index -->
-  <div class="goto-index">
-    <a href="index.html">
-      <button>➡️ Lanjut ke Kasir</button>
-    </a>
+    <!-- Tombol menuju halaman index -->
+    <div class="goto-index">
+      <a href="index.html">
+        <button>➡️ Lanjut ke Kasir</button>
+      </a>
+    </div>
   </div>
 
   <script>
@@ -53,8 +107,8 @@
       menu.forEach((item, index) => {
         menuList.innerHTML += `
           <div class="menu-item">
-            <b>${item.kategori}</b> - ${item.nama} : Rp${item.harga}
-            <button onclick="hapusMenu(${index})">Hapus</button>
+            <span><b>${item.kategori}</b> - ${item.nama} : Rp${item.harga}</span>
+            <button onclick="hapusMenu(${index})" style="width:auto; background:#ff4b5c;">🗑️ Hapus</button>
           </div>`;
       });
     }
