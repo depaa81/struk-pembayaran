@@ -177,6 +177,14 @@
         ringkasanKategori += `${kategori} : ${kategoriCount[kategori]} item\n`;
       }
 
+      // ambil diskon dari localStorage
+      const diskonData = JSON.parse(localStorage.getItem('diskonData')) || { persen: 0, potongan: 0 };
+
+      // hitung diskon
+      let diskonPersen = (total * diskonData.persen) / 100;
+      let totalSetelahDiskon = total - diskonPersen - diskonData.potongan;
+      if (totalSetelahDiskon < 0) totalSetelahDiskon = 0;
+
       const tanggal = new Date().toLocaleString("id-ID");
 
       document.getElementById('strukOutput').style.display = "block";
@@ -188,7 +196,10 @@
         <pre>${detailPesanan}</pre>
         <p>------------------------------</p>
         <pre>${ringkasanKategori}</pre>
-        <p><b>Total : Rp${formatRupiah(total)}</b></p>
+        <p><b>Total Sebelum Diskon: Rp${formatRupiah(total)}</b></p>
+        ${diskonData.persen > 0 ? `<p>Diskon ${diskonData.persen}% : - Rp${formatRupiah(diskonPersen)}</p>` : ""}
+        ${diskonData.potongan > 0 ? `<p>Potongan Harga: - Rp${formatRupiah(diskonData.potongan)}</p>` : ""}
+        <h4>Total Akhir: Rp${formatRupiah(totalSetelahDiskon)}</h4>
         <p><b>Jumlah Item : ${totalItem}</b></p>
         <p>------------------------------</p>
         <p>Terima Kasih 🙏</p>
