@@ -1,80 +1,88 @@
 <!DOCTYPE html>
 <html lang="id">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Halaman Admin - Atur Menu</title>
-    <link rel="stylesheet" href="style.css">
-    <style>
-        body { font-family: Arial, sans-serif; padding: 20px; }
-        h2 { margin-bottom: 10px; }
-        .form-container { margin-bottom: 20px; }
-        label { display: block; margin-top: 10px; }
-        input, select, button { margin-top: 5px; padding: 8px; width: 100%; max-width: 400px; }
-        .menu-list { margin-top: 20px; }
-        .menu-item { border: 1px solid #ccc; padding: 10px; margin-bottom: 10px; border-radius: 5px; }
-    </style>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Halaman Admin - Atur Menu</title>
+  <link rel="stylesheet" href="style.css">
+  <style>
+    body { font-family: Arial, sans-serif; padding: 20px; }
+    h2 { margin-bottom: 10px; }
+    .form-container { margin-bottom: 20px; }
+    label { display: block; margin-top: 10px; }
+    input, select, button { margin-top: 5px; padding: 8px; width: 100%; max-width: 400px; }
+    .menu-list { margin-top: 20px; }
+    .menu-item { border: 1px solid #ccc; padding: 10px; margin-bottom: 10px; border-radius: 5px; }
+    .goto-index { margin-top: 20px; }
+  </style>
 </head>
 <body>
-    <h2>Halaman Admin - Tambah Menu</h2>
-    <div class="form-container">
-        <label for="kategori">Kategori</label>
-        <select id="kategori">
-            <option value="Makanan">Makanan</option>
-            <option value="Minuman">Minuman</option>
-            <option value="Lainnya">Lainnya</option>
-        </select>
+  <h2>Halaman Admin - Tambah Menu</h2>
+  <div class="form-container">
+    <label for="kategori">Kategori</label>
+    <select id="kategori">
+      <option value="Makanan">Makanan</option>
+      <option value="Minuman">Minuman</option>
+      <option value="Lainnya">Lainnya</option>
+    </select>
 
-        <label for="nama">Nama Menu</label>
-        <input type="text" id="nama" placeholder="Contoh: Nasi Goreng">
+    <label for="nama">Nama Menu</label>
+    <input type="text" id="nama" placeholder="Contoh: Nasi Goreng">
 
-        <label for="harga">Harga</label>
-        <input type="number" id="harga" placeholder="Contoh: 15000">
+    <label for="harga">Harga</label>
+    <input type="number" id="harga" placeholder="Contoh: 15000">
 
-        <button onclick="tambahMenu()">Tambah Menu</button>
-    </div>
+    <button onclick="tambahMenu()">Tambah Menu</button>
+  </div>
 
-    <h3>Daftar Menu</h3>
-    <div id="menuList" class="menu-list"></div>
+  <h3>Daftar Menu</h3>
+  <div id="menuList" class="menu-list"></div>
 
-    <script>
-        function loadMenu() {
-            const menu = JSON.parse(localStorage.getItem('menuData')) || [];
-            const menuList = document.getElementById('menuList');
-            menuList.innerHTML = '';
-            menu.forEach((item, index) => {
-                menuList.innerHTML += `
-                    <div class="menu-item">
-                        <b>${item.kategori}</b> - ${item.nama} : Rp${item.harga}
-                        <button onclick="hapusMenu(${index})">Hapus</button>
-                    </div>`;
-            });
-        }
+  <!-- Tombol menuju halaman index -->
+  <div class="goto-index">
+    <a href="index.html">
+      <button>➡️ Lanjut ke Kasir</button>
+    </a>
+  </div>
 
-        function tambahMenu() {
-            const kategori = document.getElementById('kategori').value;
-            const nama = document.getElementById('nama').value;
-            const harga = document.getElementById('harga').value;
-            if (!nama || !harga) {
-                alert("Isi semua field!");
-                return;
-            }
-            const menu = JSON.parse(localStorage.getItem('menuData')) || [];
-            menu.push({ kategori, nama, harga });
-            localStorage.setItem('menuData', JSON.stringify(menu));
-            loadMenu();
-            document.getElementById('nama').value = '';
-            document.getElementById('harga').value = '';
-        }
+  <script>
+    function loadMenu() {
+      const menu = JSON.parse(localStorage.getItem('menuData')) || [];
+      const menuList = document.getElementById('menuList');
+      menuList.innerHTML = '';
+      menu.forEach((item, index) => {
+        menuList.innerHTML += `
+          <div class="menu-item">
+            <b>${item.kategori}</b> - ${item.nama} : Rp${item.harga}
+            <button onclick="hapusMenu(${index})">Hapus</button>
+          </div>`;
+      });
+    }
 
-        function hapusMenu(index) {
-            const menu = JSON.parse(localStorage.getItem('menuData')) || [];
-            menu.splice(index, 1);
-            localStorage.setItem('menuData', JSON.stringify(menu));
-            loadMenu();
-        }
+    function tambahMenu() {
+      const kategori = document.getElementById('kategori').value;
+      const nama = document.getElementById('nama').value;
+      const harga = document.getElementById('harga').value;
+      if (!nama || !harga) {
+        alert("Isi semua field!");
+        return;
+      }
+      const menu = JSON.parse(localStorage.getItem('menuData')) || [];
+      menu.push({ kategori, nama, harga });
+      localStorage.setItem('menuData', JSON.stringify(menu));
+      loadMenu();
+      document.getElementById('nama').value = '';
+      document.getElementById('harga').value = '';
+    }
 
-        window.onload = loadMenu;
-    </script>
+    function hapusMenu(index) {
+      const menu = JSON.parse(localStorage.getItem('menuData')) || [];
+      menu.splice(index, 1);
+      localStorage.setItem('menuData', JSON.stringify(menu));
+      loadMenu();
+    }
+
+    window.onload = loadMenu;
+  </script>
 </body>
 </html>
