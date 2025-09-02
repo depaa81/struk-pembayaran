@@ -2,142 +2,180 @@
 <html lang="id">
 <head>
   <meta charset="UTF-8">
-  <title>Admin - Atur Menu</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Halaman Admin - Atur Menu</title>
+  <link rel="stylesheet" href="style.css">
   <style>
     body {
-      font-family: Arial, sans-serif;
-      background: #f4f6f9;
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
       padding: 20px;
+      background: linear-gradient(135deg, #f6d365 0%, #fda085 100%);
+      min-height: 100vh;
+      display: flex;
+      justify-content: center;
+      align-items: flex-start;
     }
     .container {
-      max-width: 600px;
-      margin: auto;
-      background: #fff;
+      background: white;
       padding: 20px;
-      border-radius: 12px;
-      box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+      border-radius: 15px;
+      box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+      max-width: 500px;
+      width: 100%;
     }
-    input, select, button {
-      margin: 8px 0;
+    h2 { text-align: center; }
+    label { display: block; margin-top: 10px; font-weight: bold; }
+    input, select {
+      margin-top: 5px;
       padding: 10px;
       width: 100%;
       border-radius: 8px;
       border: 1px solid #ccc;
-      font-size: 14px;
+      outline: none;
+      transition: 0.3s;
+    }
+    input:focus, select:focus {
+      border-color: #ff7e5f;
+      box-shadow: 0 0 5px #ff7e5f;
     }
     button {
-      background: #007bff;
-      color: white;
-      cursor: pointer;
+      background: linear-gradient(135deg, #ff7e5f, #feb47b);
       border: none;
+      padding: 10px 15px;
+      color: white;
+      border-radius: 10px;
+      cursor: pointer;
+      margin-top: 15px;
+      width: 100%;
+      font-size: 15px;
       transition: 0.3s;
     }
     button:hover {
-      background: #0056b3;
+      transform: scale(1.05);
+      box-shadow: 0 3px 10px rgba(0,0,0,0.2);
     }
-    h2 {
-      text-align: center;
-    }
-    .menu-list {
-      margin-top: 20px;
-    }
-    .diskon-box {
-      margin-top: 20px;
+    .menu-list { margin-top: 20px; }
+    .menu-item {
+      border: 1px solid #ddd;
       padding: 10px;
-      background: #eef5ff;
+      margin-bottom: 10px;
       border-radius: 8px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      background: #fafafa;
+    }
+    .goto-index { margin-top: 20px; }
+    .discount-box {
+      margin-top: 20px;
+      padding: 15px;
+      border-radius: 10px;
+      background: #fff7e6;
+      border: 1px solid #ffb347;
     }
   </style>
 </head>
 <body>
   <div class="container">
-    <h2>⚙️ Halaman Admin</h2>
+    <h2>Halaman Admin - Tambah Menu</h2>
+    <div class="form-container">
+      <label for="kategori">Kategori</label>
+      <select id="kategori">
+        <option value="Makanan">Makanan</option>
+        <option value="Minuman">Minuman</option>
+        <option value="Lainnya">Lainnya</option>
+      </select>
 
-    <h3>Tambah Menu</h3>
-    <select id="kategori">
-      <option value="Makanan">Makanan</option>
-      <option value="Minuman">Minuman</option>
-      <option value="Lainnya">Lainnya</option>
-    </select>
-    <input type="text" id="nama" placeholder="Nama Menu">
-    <input type="number" id="harga" placeholder="Harga">
-    <button onclick="tambahMenu()">Tambah Menu</button>
+      <label for="nama">Nama Menu</label>
+      <input type="text" id="nama" placeholder="Contoh: Nasi Goreng">
 
-    <div class="menu-list">
-      <h3>📋 Daftar Menu</h3>
-      <div id="daftarMenu"></div>
+      <label for="harga">Harga</label>
+      <input type="number" id="harga" placeholder="Contoh: 15000">
+
+      <button onclick="tambahMenu()">➕ Tambah Menu</button>
     </div>
 
-    <div class="diskon-box">
-      <h3>🎁 Atur Diskon</h3>
-      <label>Jenis Diskon:</label>
-      <select id="diskonTipe">
-        <option value="persen">Persentase (%)</option>
-        <option value="potongan">Potongan (Rp)</option>
-      </select>
-      <input type="number" id="diskonNilai" placeholder="Masukkan nilai diskon">
-      <button onclick="simpanDiskon()">Simpan Diskon</button>
+    <h3>Daftar Menu</h3>
+    <div id="menuList" class="menu-list"></div>
+
+    <!-- Diskon & Potongan -->
+    <div class="discount-box">
+      <h3>Atur Diskon / Potongan</h3>
+      <label for="diskonPersen">Diskon Persen (%)</label>
+      <input type="number" id="diskonPersen" placeholder="Contoh: 10">
+
+      <label for="potonganHarga">Potongan Harga (Rp)</label>
+      <input type="number" id="potonganHarga" placeholder="Contoh: 5000">
+
+      <button onclick="simpanDiskon()">💾 Simpan Diskon</button>
+
       <p id="infoDiskon"></p>
+    </div>
+
+    <!-- Tombol menuju halaman index -->
+    <div class="goto-index">
+      <a href="index.html">
+        <button>➡️ Lanjut ke Kasir</button>
+      </a>
     </div>
   </div>
 
   <script>
-    let menuData = JSON.parse(localStorage.getItem('menuData')) || [];
-    let diskon = JSON.parse(localStorage.getItem('diskonData')) || { tipe: "persen", nilai: 0 };
+    function formatRupiah(angka) {
+      return new Intl.NumberFormat('id-ID').format(angka);
+    }
 
-    function tampilkanMenu() {
-      const daftar = document.getElementById('daftarMenu');
-      daftar.innerHTML = "";
-      menuData.forEach((item, idx) => {
-        daftar.innerHTML += `<p>${item.kategori} - ${item.nama} : Rp${item.harga.toLocaleString("id-ID")}
-        <button onclick="hapusMenu(${idx})" style="background:#ff4b5c;color:white;border:none;padding:4px 10px;border-radius:6px;margin-left:10px;">Hapus</button></p>`;
+    function loadMenu() {
+      const menu = JSON.parse(localStorage.getItem('menuData')) || [];
+      const menuList = document.getElementById('menuList');
+      menuList.innerHTML = '';
+      menu.forEach((item, index) => {
+        menuList.innerHTML += `
+          <div class="menu-item">
+            <span><b>${item.kategori}</b> - ${item.nama} : Rp ${formatRupiah(item.harga)}</span>
+            <button onclick="hapusMenu(${index})" style="width:auto; background:#ff4b5c;">🗑️ Hapus</button>
+          </div>`;
       });
+
+      // tampilkan info diskon
+      const diskon = JSON.parse(localStorage.getItem('diskonData')) || { persen: 0, potongan: 0 };
+      document.getElementById('infoDiskon').innerText = 
+        `Diskon: ${diskon.persen}% | Potongan: Rp ${formatRupiah(diskon.potongan)}`;
     }
 
     function tambahMenu() {
       const kategori = document.getElementById('kategori').value;
       const nama = document.getElementById('nama').value;
-      const harga = parseInt(document.getElementById('harga').value);
-
+      const harga = document.getElementById('harga').value;
       if (!nama || !harga) {
-        alert("Isi semua data!");
+        alert("Isi semua field!");
         return;
       }
-
-      menuData.push({ kategori, nama, harga });
-      localStorage.setItem('menuData', JSON.stringify(menuData));
-      tampilkanMenu();
+      const menu = JSON.parse(localStorage.getItem('menuData')) || [];
+      menu.push({ kategori, nama, harga: parseInt(harga) });
+      localStorage.setItem('menuData', JSON.stringify(menu));
+      loadMenu();
+      document.getElementById('nama').value = '';
+      document.getElementById('harga').value = '';
     }
 
     function hapusMenu(index) {
-      menuData.splice(index, 1);
-      localStorage.setItem('menuData', JSON.stringify(menuData));
-      tampilkanMenu();
+      const menu = JSON.parse(localStorage.getItem('menuData')) || [];
+      menu.splice(index, 1);
+      localStorage.setItem('menuData', JSON.stringify(menu));
+      loadMenu();
     }
 
     function simpanDiskon() {
-      const tipe = document.getElementById('diskonTipe').value;
-      const nilai = parseInt(document.getElementById('diskonNilai').value) || 0;
-      diskon = { tipe, nilai };
-      localStorage.setItem('diskonData', JSON.stringify(diskon));
-      tampilkanDiskon();
+      const persen = parseInt(document.getElementById('diskonPersen').value) || 0;
+      const potongan = parseInt(document.getElementById('potonganHarga').value) || 0;
+      const diskonData = { persen, potongan };
+      localStorage.setItem('diskonData', JSON.stringify(diskonData));
+      alert("Diskon berhasil disimpan!");
+      loadMenu();
     }
 
-    function tampilkanDiskon() {
-      const info = document.getElementById('infoDiskon');
-      if (diskon.nilai > 0) {
-        if (diskon.tipe === "persen") {
-          info.innerText = `Diskon aktif: ${diskon.nilai}%`;
-        } else {
-          info.innerText = `Diskon aktif: Rp${diskon.nilai.toLocaleString("id-ID")}`;
-        }
-      } else {
-        info.innerText = "Tidak ada diskon";
-      }
-    }
-
-    tampilkanMenu();
-    tampilkanDiskon();
+    window.onload = loadMenu;
   </script>
 </body>
 </html>
