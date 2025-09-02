@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Struk Pembayaran</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div class="container">
+        <h2>Struk Pembayaran</h2>
+        <form id="paymentForm">
+            <label for="menu">Pilih Menu</label>
+            <select id="menu"></select>
+
+            <label for="jumlah">Jumlah</label>
+            <input type="number" id="jumlah" min="1" value="1">
+
+            <button type="submit">Cetak Struk</button>
+        </form>
+
+        <div id="strukOutput"></div>
+    </div>
+
+    <script>
+        function loadMenuOptions() {
+            const menu = JSON.parse(localStorage.getItem('menuData')) || [];
+            const menuSelect = document.getElementById('menu');
+            menuSelect.innerHTML = '';
+            menu.forEach((item, index) => {
+                menuSelect.innerHTML += `<option value="${index}">${item.kategori} - ${item.nama} : Rp${item.harga}</option>`;
+            });
+        }
+
+        document.getElementById('paymentForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+            const menu = JSON.parse(localStorage.getItem('menuData')) || [];
+            const selectedIndex = document.getElementById('menu').value;
+            const jumlah = document.getElementById('jumlah').value;
+            const selectedItem = menu[selectedIndex];
+
+            if (!selectedItem) {
+                alert("Menu tidak tersedia");
+                return;
+            }
+
+            const total = selectedItem.harga * jumlah;
+            document.getElementById('strukOutput').innerHTML = `
+                <h3>Struk Pembayaran</h3>
+                <p>Menu: ${selectedItem.nama}</p>
+                <p>Harga: Rp${selectedItem.harga}</p>
+                <p>Jumlah: ${jumlah}</p>
+                <p><b>Total: Rp${total}</b></p>
+            `;
+        });
+
+        window.onload = loadMenuOptions;
+    </script>
+</body>
+</html>
